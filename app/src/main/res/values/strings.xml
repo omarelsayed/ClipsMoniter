@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">CS193A</string>
+    <string name="title_exit">Exit</string>
+    <string name="title_edit">Edit</string>
+</resources>
