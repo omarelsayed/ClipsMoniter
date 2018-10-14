@@ -28,7 +28,7 @@ class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.MyViewHol
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final MyViewHolder holder, final int position) {
         holder.textView.setText(data.get(position));
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -49,8 +49,6 @@ class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.MyViewHol
                 return false;
             }
         });
-
-        holder.cardView.setLongClickable(true);
     }
 
     @Override
@@ -77,8 +75,8 @@ class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.MyViewHol
     }
 
     interface ClickListener {
-        public void onItemCLick(int position);
+        void onItemCLick(int position);
 
-        public void onItemLongCLick(int position);
+        void onItemLongCLick(int position);
     }
 }
