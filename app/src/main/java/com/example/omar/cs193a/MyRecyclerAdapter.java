@@ -13,10 +13,23 @@ import java.util.List;
 
 class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.MyViewHolder> {
     private Context mContext;
-    private List<String> data;
+    private List<Clip> data;
     private ClickListener listener;
 
-    public MyRecyclerAdapter(Context ctx, List<String> data) {
+    class MyViewHolder extends RecyclerView.ViewHolder {
+        CardView clip_card;
+        TextView clip_date;
+        TextView clip_content;
+
+        public MyViewHolder(View itemView) {
+            super(itemView);
+            clip_card = itemView.findViewById(R.id.clip_card);
+            clip_date = itemView.findViewById(R.id.clip_date);
+            clip_content = itemView.findViewById(R.id.clip_content);
+        }
+    }
+
+    public MyRecyclerAdapter(Context ctx, List<Clip> data) {
         mContext = ctx;
         this.data = data;
     }
@@ -29,17 +42,12 @@ class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.MyViewHol
 
     @Override
     public void onBindViewHolder(@NonNull final MyViewHolder holder, final int position) {
-        holder.textView.setText(data.get(position));
-        holder.cardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null) {
-                    listener.onItemCLick(position);
-                }
-            }
-        });
+        Clip clip = data.get(position);
 
-        holder.cardView.setOnLongClickListener(new View.OnLongClickListener() {
+        holder.clip_date.setText(clip.getDate());
+        holder.clip_content.setText(clip.getContent());
+
+        holder.clip_card.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 if (listener != null) {
@@ -57,26 +65,11 @@ class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.MyViewHol
     }
 
 
-    class MyViewHolder extends RecyclerView.ViewHolder {
-        CardView cardView;
-        TextView textView;
-
-        public MyViewHolder(View itemView) {
-            super(itemView);
-            cardView = itemView.findViewById(R.id.card);
-            textView = itemView.findViewById(R.id.card_tv);
-        }
-
-
-    }
-
     public void setListener(ClickListener listener) {
         this.listener = listener;
     }
 
     interface ClickListener {
-        void onItemCLick(int position);
-
         void onItemLongCLick(int position);
     }
 }

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
 
@@ -29,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
     private Context mContext;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
-    private ArrayList<String> clips = new ArrayList<>();
+    private ArrayList<Clip> clips = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
 
         mClipsDB = new ClipsDB(mContext);
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        mClipboardManager = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
         mRecyclerView = findViewById(R.id.recycler);
 
         mSwipeRefreshLayout = findViewById(R.id.swipe);
@@ -54,20 +56,18 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
         myRecyclerAdapter = new MyRecyclerAdapter(mContext, clips);
         myRecyclerAdapter.setListener(this);
 
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         mRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
         mRecyclerView.setAdapter(myRecyclerAdapter);
 
     }
 
-    @Override
-    public void onItemCLick(int position) {
-        /*Toast.makeText(this, "Clicked : " + clips.get(position), Toast.LENGTH_SHORT).show();*/
-    }
 
     @Override
     public void onItemLongCLick(final int position) {
-        ((ClipboardManager)getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(new ClipData("fromClips", new String[]{"teext/plain"}, new ClipData.Item(clips.get(position))));
-        Toast.makeText(this, "Clip Copied" + clips.get(position), Toast.LENGTH_SHORT).show();
+        Clip clip = clips.get(position);
+        mClipboardManager.setPrimaryClip(new ClipData("", new String[]{"text/plain"}, new ClipData.Item(clip.getContent())));
+        Toast.makeText(this, "Clip Copied", Toast.LENGTH_SHORT).show();
     }
 
     public void updateRecycler() {
