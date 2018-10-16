@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class ClipsDB extends SQLiteOpenHelper {
 
@@ -38,6 +39,10 @@ public class ClipsDB extends SQLiteOpenHelper {
     }
 
     public boolean findClip(String clip) {
+        // Lower Result Set
+        //Cursor cursor = getReadableDatabase().rawQuery("select *" + " from " + scheme.TABLE_CLIPS + " where lower(" + scheme.COL_CONTENT + ")=?", new String[]{clip.toLowerCase()});
+
+        // Don't Lower Result Set
         Cursor cursor = getReadableDatabase().rawQuery("select *" + " from " + scheme.TABLE_CLIPS + " where " + scheme.COL_CONTENT + "=?", new String[]{clip.toLowerCase()});
         return cursor.moveToFirst();
     }
@@ -49,6 +54,7 @@ public class ClipsDB extends SQLiteOpenHelper {
             clips.add(cursor.getString(cursor.getColumnIndex(scheme.COL_CONTENT)));
         }
 
+        Collections.reverse(clips);
         return clips;
     }
 
@@ -75,7 +81,7 @@ public class ClipsDB extends SQLiteOpenHelper {
         public static final String QUERY_CREATE = "create table "
                 + TABLE_CLIPS
                 + " ("
-                + COL_ID + " integer primary key,"
+                + COL_ID + " integer primary key AUTOINCREMENT,"
                 + COL_CONTENT + " text"
                 + ")";
 
