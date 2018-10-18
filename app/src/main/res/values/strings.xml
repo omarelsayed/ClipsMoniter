@@ -2,4 +2,5 @@
     <string name="app_name">Clips</string>
     <string name="title_exit">Exit</string>
     <string name="title_edit">Edit</string>
+    <string name="title_copy">Copy</string>
 </resources>

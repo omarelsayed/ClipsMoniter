@@ -43,8 +43,9 @@ public class ClipsMonitorService extends IntentService implements ClipboardManag
             mNotificationManager.createNotificationChannel(new NotificationChannel(NOTIF_CHANNEL_ID, "Clips Ongoing Notification Channel", NotificationManager.IMPORTANCE_DEFAULT));
 
         }
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, NOTIF_ACTION_PENDING_REQUEST, new Intent(this, MainActivity.class), Intent.FILL_IN_ACTION);
+        Intent mainActivityIntent = new Intent(this, MainActivity.class);
+        /*mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);*/
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, NOTIF_ACTION_PENDING_REQUEST, mainActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder mNotificationBuilder = new NotificationCompat.Builder(this, NOTIF_CHANNEL_ID)
                 .setAutoCancel(false)
                 .setOngoing(true)
@@ -75,22 +76,27 @@ public class ClipsMonitorService extends IntentService implements ClipboardManag
 
 
     @Override
-    public void onPrimaryClipChanged() {
-        ClipData clipData = mClipboardManager.getPrimaryClip();
+    public void onDestroy() {
+        mClipboardManager.removePrimaryClipChangedListener(this);
+        super.onDestroy();
+    }
 
-        String clipContent = null;
-        String clipDate = null;
+    @Override
+    public void onPrimaryClipChanged() {
+        String clipContent;
+        String clipDate;
         Clip newClip = null;
 
+        ClipData clipData = mClipboardManager.getPrimaryClip();
         if (clipData != null) {
             clipContent = clipData.getItemAt(0).getText().toString();
-
-            SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a, d-MM-yyyy", Locale.getDefault());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a - d-MM-yyyy", Locale.getDefault());
             clipDate = dateFormat.format(Calendar.getInstance().getTime());
-
             newClip = new Clip(clipContent, clipDate);
-
         }
         mClipsDB.addClip(newClip);
     }
+
+
+
 }

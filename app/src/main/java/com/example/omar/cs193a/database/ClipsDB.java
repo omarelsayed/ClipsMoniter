@@ -65,7 +65,7 @@ public class ClipsDB extends SQLiteOpenHelper {
 
     public boolean removeClip(Clip clip) {
         if (findClip(clip)) {
-            getWritableDatabase().delete(scheme.TABLE_CLIPS, scheme.QUERY_FUNC_LCASE + scheme.COL_CONTENT + ")", new String[]{clip.getContent().toLowerCase()});
+            getWritableDatabase().delete(scheme.TABLE_CLIPS, scheme.COL_CONTENT+"=?" ,new String[]{clip.getContent()});
             return true;
         }
 

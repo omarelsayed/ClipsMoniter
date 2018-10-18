@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.List;
@@ -20,12 +21,14 @@ class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.MyViewHol
         CardView clip_card;
         TextView clip_date;
         TextView clip_content;
+        Button clip_more;
 
         public MyViewHolder(View itemView) {
             super(itemView);
             clip_card = itemView.findViewById(R.id.clip_card);
             clip_date = itemView.findViewById(R.id.clip_date);
             clip_content = itemView.findViewById(R.id.clip_content);
+            clip_more = itemView.findViewById(R.id.clip_more);
         }
     }
 
@@ -47,14 +50,14 @@ class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.MyViewHol
         holder.clip_date.setText(clip.getDate());
         holder.clip_content.setText(clip.getContent());
 
-        holder.clip_card.setOnLongClickListener(new View.OnLongClickListener() {
+        holder.clip_more.setOnClickListener(new View.OnClickListener() {
+            // Click Anchor View
+            View anchor = holder.clip_more;
             @Override
-            public boolean onLongClick(View v) {
+            public void onClick(View v) {
                 if (listener != null) {
-                    listener.onItemLongCLick(position);
-                    return true;
+                    listener.onItemCLick(anchor, position);
                 }
-                return false;
             }
         });
     }
@@ -70,6 +73,8 @@ class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.MyViewHol
     }
 
     interface ClickListener {
-        void onItemLongCLick(int position);
+        void onItemCLick(View view, int position);
+        void onItemLongCLick(View view, int position);
     }
+
 }
