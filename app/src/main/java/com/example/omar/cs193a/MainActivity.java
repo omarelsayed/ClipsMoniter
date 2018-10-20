@@ -1,57 +1,59 @@
 package com.example.omar.cs193a;
 
-import android.app.NotificationManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.Switch;
 
 import com.example.omar.cs193a.database.ClipsDB;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter.ClickListener, SwipeRefreshLayout.OnRefreshListener {
-    private static final String NOTIF_CHANNEL_ID = "Clips_main_notif_id";
-    private static final int NOTIF_ACTION_PENDING_REQUEST = 0;
-    private static final int NOTIF_ID = 1995;
-
+    private Context mContext;
     private ClipsDB mClipsDB;
     private RecyclerView mRecyclerView;
     private MyRecyclerAdapter myRecyclerAdapter;
-    private NotificationManager mNotificationManager;
-    private ClipboardManager mClipboardManager;
-    private Context mContext;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private Intent ClipsMonitorServiceIntent;
+    private CoordinatorLayout mCoordinator;
+    private ClipboardManager mClipboardManager;
+    private Switch mSwitch;
+    boolean enabled;
 
     private ArrayList<Clip> clips = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setSupportActionBar((Toolbar) findViewById(R.id.main_toolbar));
         mContext = this;
+
 
         ClipsMonitorServiceIntent = new Intent(this, ClipsMonitorService.class);
         startService(ClipsMonitorServiceIntent);
 
+
         mClipsDB = new ClipsDB(mContext);
-        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        mClipboardManager = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+
+        mClipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         mRecyclerView = findViewById(R.id.recycler);
+        mCoordinator = findViewById(R.id.main_coordinator);
 
         mSwipeRefreshLayout = findViewById(R.id.swipe);
         mSwipeRefreshLayout.setOnRefreshListener(this);
@@ -80,13 +82,15 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
                 switch (item.getItemId()) {
                     case R.id.action_delete:
                         if(mClipsDB.removeClip(clip)) {
+                            showSnack("Clip Deleted");
                             updateRecycler();
-                            Toast.makeText(mContext, "DELETE", Toast.LENGTH_SHORT).show();
                         }
+
                         break;
+
                     case R.id.action_copy:
                         mClipboardManager.setPrimaryClip(new ClipData("", new String[]{"text/plain"}, new ClipData.Item(clip.getContent())));
-                        Toast.makeText(mContext, "Clip Copied", Toast.LENGTH_SHORT).show();
+                        showSnack("Clip Copied");
                         break;
                 }
                 return true;
@@ -129,5 +133,9 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
                 finish();
         }
         return true;
+    }
+
+    public void showSnack(String text) {
+        Snackbar.make(mCoordinator, text, Snackbar.LENGTH_LONG).show();
     }
 }
