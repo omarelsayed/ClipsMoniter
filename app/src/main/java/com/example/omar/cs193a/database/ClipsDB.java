@@ -15,12 +15,12 @@ import java.util.Collections;
 public class ClipsDB extends SQLiteOpenHelper {
 
     public ClipsDB(@Nullable Context context) {
-        super(context, scheme.DB_NAME, null, scheme.DB_VER);
+        super(context, ClipsDBScheme.DB_NAME, null, ClipsDBScheme.DB_VER);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(scheme.QUERY_CREATE);
+        db.execSQL(ClipsDBScheme.QUERY_CREATE);
     }
 
     @Override
@@ -31,9 +31,9 @@ public class ClipsDB extends SQLiteOpenHelper {
     public boolean addClip(Clip clip) {
         if (!findClip(clip)) {
             ContentValues values = new ContentValues();
-            values.put(scheme.COL_CONTENT, clip.getContent());
-            values.put(scheme.COL_DATE, clip.getDate());
-            getWritableDatabase().insert(scheme.TABLE_CLIPS, null, values);
+            values.put(ClipsDBScheme.COL_CONTENT, clip.getContent());
+            values.put(ClipsDBScheme.COL_DATE, clip.getDate());
+            getWritableDatabase().insert(ClipsDBScheme.TABLE_CLIPS, null, values);
             return true;
         }
 
@@ -44,18 +44,18 @@ public class ClipsDB extends SQLiteOpenHelper {
     public boolean findClip(Clip clip) {
         String clipContent = clip.getContent();
         // Lower Result Set
-        //Cursor cursor = getReadableDatabase().rawQuery("select *" + " from " + scheme.TABLE_CLIPS + " where lower(" + scheme.COL_CONTENT + ")=?", new String[]{clipContent.toLowerCase()});
+        //Cursor cursor = getReadableDatabase().rawQuery("select *" + " from " + ClipsDBScheme.TABLE_CLIPS + " where lower(" + ClipsDBScheme.COL_CONTENT + ")=?", new String[]{clipContent.toLowerCase()});
 
         // Don't Lower Result Set
-        Cursor cursor = getReadableDatabase().rawQuery("select *" + " from " + scheme.TABLE_CLIPS + " where " + scheme.COL_CONTENT + "=?", new String[]{clipContent.toLowerCase()});
+        Cursor cursor = getReadableDatabase().rawQuery("select *" + " from " + ClipsDBScheme.TABLE_CLIPS + " where " + ClipsDBScheme.COL_CONTENT + "=?", new String[]{clipContent.toLowerCase()});
         return cursor.moveToFirst();
     }
 
     public ArrayList<Clip> getClips() {
         ArrayList<Clip> clips = new ArrayList<>();
-        Cursor cursor = getReadableDatabase().rawQuery("select * from " + scheme.TABLE_CLIPS, null);
+        Cursor cursor = getReadableDatabase().rawQuery("select * from " + ClipsDBScheme.TABLE_CLIPS, null);
         while (cursor.moveToNext()) {
-            clips.add(new Clip(cursor.getString(cursor.getColumnIndex(scheme.COL_CONTENT)), cursor.getString(cursor.getColumnIndex(scheme.COL_DATE))));
+            clips.add(new Clip(cursor.getString(cursor.getColumnIndex(ClipsDBScheme.COL_CONTENT)), cursor.getString(cursor.getColumnIndex(ClipsDBScheme.COL_DATE))));
         }
 
         Collections.reverse(clips);
@@ -65,7 +65,7 @@ public class ClipsDB extends SQLiteOpenHelper {
 
     public boolean removeClip(Clip clip) {
         if (findClip(clip)) {
-            getWritableDatabase().delete(scheme.TABLE_CLIPS, scheme.COL_CONTENT+"=?" ,new String[]{clip.getContent()});
+            getWritableDatabase().delete(ClipsDBScheme.TABLE_CLIPS, ClipsDBScheme.COL_CONTENT+"=?" ,new String[]{clip.getContent()});
             return true;
         }
 
@@ -73,25 +73,4 @@ public class ClipsDB extends SQLiteOpenHelper {
 
     }
 
-    public class scheme {
-        public static final String DB_NAME = "clipDB";
-        public static final int DB_VER = 1;
-
-        public static final String TABLE_CLIPS = "clips";
-
-        public static final String COL_ID = "_id";
-        public static final String COL_CONTENT = "clip_content";
-        public static final String COL_DATE = "clip_date";
-
-        public static final String QUERY_CREATE = "create table "
-                + TABLE_CLIPS
-                + " ("
-                + COL_ID + " integer primary key AUTOINCREMENT,"
-                + COL_CONTENT + " text,"
-                + COL_DATE + " text"
-                + ")";
-
-        public static final String QUERY_FUNC_LCASE = "lower`(";
-
-    }
 }

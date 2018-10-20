@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.action_delete:
-                        if(mClipsDB.removeClip(clip)) {
+                        if (mClipsDB.removeClip(clip)) {
                             showSnack("Clip Deleted");
                             updateRecycler();
                         }
@@ -97,7 +97,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
             }
         });
         popupMenu.show();
-
     }
 
     @Override
