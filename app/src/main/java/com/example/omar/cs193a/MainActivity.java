@@ -4,7 +4,9 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -32,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
     private Intent ClipsMonitorServiceIntent;
     private CoordinatorLayout mCoordinator;
     private ClipboardManager mClipboardManager;
+    private SharedPreferences mSharedPreferences;
     private Switch mSwitch;
     boolean enabled;
 
@@ -41,8 +44,10 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
         setSupportActionBar((Toolbar) findViewById(R.id.main_toolbar));
         mContext = this;
+
 
 
         ClipsMonitorServiceIntent = new Intent(this, ClipsMonitorService.class);
@@ -52,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
         mClipsDB = new ClipsDB(mContext);
 
         mClipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+
         mRecyclerView = findViewById(R.id.recycler);
         mCoordinator = findViewById(R.id.main_coordinator);
 
@@ -130,6 +136,10 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
             case R.id.action_exit:
                 stopService(ClipsMonitorServiceIntent);
                 finish();
+                break;
+            case R.id.action_settings:
+                startActivity(new Intent(mContext, SettingsActivity.class));
+                break;
         }
         return true;
     }

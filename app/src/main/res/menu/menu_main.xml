@@ -3,8 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/action_settings"
+        android:title="@string/title_settings"
+        android:icon="@drawable/ic_settings"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_exit"
-        android:title="@string/title_exit"
         android:icon="@drawable/ic_exit"
+        android:title="@string/title_exit"
         app:showAsAction="never" />
 </menu>
