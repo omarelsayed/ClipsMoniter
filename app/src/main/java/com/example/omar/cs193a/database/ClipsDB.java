@@ -47,7 +47,7 @@ public class ClipsDB extends SQLiteOpenHelper {
         //Cursor cursor = getReadableDatabase().rawQuery("select *" + " from " + ClipsDBScheme.TABLE_CLIPS + " where lower(" + ClipsDBScheme.COL_CONTENT + ")=?", new String[]{clipContent.toLowerCase()});
 
         // Don't Lower Result Set
-        Cursor cursor = getReadableDatabase().rawQuery("select *" + " from " + ClipsDBScheme.TABLE_CLIPS + " where " + ClipsDBScheme.COL_CONTENT + "=?", new String[]{clipContent.toLowerCase()});
+        Cursor cursor = getReadableDatabase().rawQuery("select *" + " from " + ClipsDBScheme.TABLE_CLIPS + " where " + ClipsDBScheme.COL_CONTENT + "=?", new String[]{clipContent});
         return cursor.moveToFirst();
     }
 
