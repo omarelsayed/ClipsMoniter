@@ -28,20 +28,17 @@ public class ClipsDB extends SQLiteOpenHelper {
 
     }
 
-    public boolean addClip(Clip clip) {
+    public void addClip(Clip clip) {
         if (!findClip(clip)) {
             ContentValues values = new ContentValues();
             values.put(ClipsDBScheme.COL_CONTENT, clip.getContent());
             values.put(ClipsDBScheme.COL_DATE, clip.getDate());
             getWritableDatabase().insert(ClipsDBScheme.TABLE_CLIPS, null, values);
-            return true;
         }
-
-        return false;
 
     }
 
-    public boolean findClip(Clip clip) {
+    private boolean findClip(Clip clip) {
         String clipContent = clip.getContent();
         // Lower Result Set
         //Cursor cursor = getReadableDatabase().rawQuery("select *" + " from " + ClipsDBScheme.TABLE_CLIPS + " where lower(" + ClipsDBScheme.COL_CONTENT + ")=?", new String[]{clipContent.toLowerCase()});
@@ -49,6 +46,13 @@ public class ClipsDB extends SQLiteOpenHelper {
         // Don't Lower Result Set
         Cursor cursor = getReadableDatabase().rawQuery("select *" + " from " + ClipsDBScheme.TABLE_CLIPS + " where " + ClipsDBScheme.COL_CONTENT + "=?", new String[]{clipContent});
         return cursor.moveToFirst();
+    }
+
+    public void removeClip(Clip clip) {
+        if (findClip(clip)) {
+            getWritableDatabase().delete(ClipsDBScheme.TABLE_CLIPS, ClipsDBScheme.COL_CONTENT+"=?" ,new String[]{clip.getContent()});
+        }
+
     }
 
     public ArrayList<Clip> getClips() {
@@ -63,14 +67,5 @@ public class ClipsDB extends SQLiteOpenHelper {
     }
 
 
-    public boolean removeClip(Clip clip) {
-        if (findClip(clip)) {
-            getWritableDatabase().delete(ClipsDBScheme.TABLE_CLIPS, ClipsDBScheme.COL_CONTENT+"=?" ,new String[]{clip.getContent()});
-            return true;
-        }
-
-        return false;
-
-    }
 
 }

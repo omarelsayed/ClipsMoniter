@@ -25,6 +25,7 @@ public class ClipsMonitorService extends IntentService implements ClipboardManag
     private static final String NOTIF_CHANNEL_ID = "Clips_main_notif_id";
     private static final int NOTIF_ACTION_PENDING_REQUEST = 0;
     private static final int ONGOING_NOTIF_ID = 1995;
+    private static final int CLOSE_SERVICE_PENDING_REQ = 1;
 
     private ClipsDB mClipsDB;
     private NotificationManager mNotificationManager;
@@ -40,22 +41,28 @@ public class ClipsMonitorService extends IntentService implements ClipboardManag
         super.onCreate();
 
         mClipsDB = new ClipsDB(this);
-        mNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             mNotificationManager.createNotificationChannel(new NotificationChannel(NOTIF_CHANNEL_ID, "Clips Ongoing Notification Channel", NotificationManager.IMPORTANCE_DEFAULT));
 
         }
         Intent mainActivityIntent = new Intent(this, MainActivity.class);
-        /*mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);*/
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, NOTIF_ACTION_PENDING_REQUEST, mainActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent mainActivityPendingIntent = PendingIntent.getActivity(this, NOTIF_ACTION_PENDING_REQUEST, mainActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent closeServiceIntent = new Intent(this, CloseClipsMonitorService.class);
+        closeServiceIntent.setAction(CloseClipsMonitorService.ACTION_CLOSE);
+        PendingIntent closeServicePendingIntent = PendingIntent.getService(this, CLOSE_SERVICE_PENDING_REQ, closeServiceIntent, 0);
+
+
         NotificationCompat.Builder mNotificationBuilder = new NotificationCompat.Builder(this, NOTIF_CHANNEL_ID)
                 .setAutoCancel(false)
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_copy)
                 .setContentTitle("Clipboard Monitor")
                 .setContentText("Monitor is Running")
-                .setContentIntent(pendingIntent);
+                .setContentIntent(mainActivityPendingIntent)
+                .addAction(R.drawable.ic_exit_dark, "Close", closeServicePendingIntent);
 
         mClipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         if (mClipboardManager != null) {
@@ -63,8 +70,6 @@ public class ClipsMonitorService extends IntentService implements ClipboardManag
         }
 
         startForeground(ONGOING_NOTIF_ID, mNotificationBuilder.build());
-
-
     }
 
     @Override
@@ -74,7 +79,6 @@ public class ClipsMonitorService extends IntentService implements ClipboardManag
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-
     }
 
 
@@ -93,13 +97,12 @@ public class ClipsMonitorService extends IntentService implements ClipboardManag
         ClipData clipData = mClipboardManager.getPrimaryClip();
         if (clipData != null) {
             clipContent = clipData.getItemAt(0).getText().toString();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a - d-MM-yyyy", Locale.getDefault());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a, d MMM yyyy", Locale.getDefault());
             clipDate = dateFormat.format(Calendar.getInstance().getTime());
             newClip = new Clip(clipContent, clipDate);
         }
         mClipsDB.addClip(newClip);
     }
-
 
 
 }
