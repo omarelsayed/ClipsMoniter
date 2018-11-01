@@ -1,6 +1,7 @@
-package com.example.omar.cs193a;
+package com.example.omar.cs193a.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -9,9 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.omar.cs193a.R;
+import com.example.omar.cs193a.model.Clip;
+
 import java.util.List;
 
-class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.MyViewHolder> {
+public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.MyViewHolder> {
     private Context mContext;
     private List<Clip> data;
     private ClipsRecyclerClickListener listener;
@@ -44,6 +48,8 @@ class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.MyViewHol
 
     @Override
     public void onBindViewHolder(@NonNull final MyViewHolder holder, final int position) {
+        holder.itemView.setBackgroundColor(Color.WHITE);
+
         Clip clip = data.get(position);
 
         holder.clip_date.setText(clip.getDate());
@@ -75,8 +81,9 @@ class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.MyViewHol
         this.listener = listener;
     }
 
-    interface ClipsRecyclerClickListener {
+    public interface ClipsRecyclerClickListener {
         void onItemCLick(View view, int position);
+
         void onItemLongCLick(View view, int position);
     }
 

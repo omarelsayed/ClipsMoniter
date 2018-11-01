@@ -6,4 +6,8 @@
     <string name="title_settings">Settings</string>
     <string name="switch_preference_boot">switch_preference_boot</string>
     <string name="title_delete">Delete</string>
+    <string name="title_share">Share</string>
+    <string name="title_change_layout">Change Layout</string>
+    <string name="list_layout">Linear Layout</string>
+    <string name="grid_layout">Grid Layout</string>
 </resources>

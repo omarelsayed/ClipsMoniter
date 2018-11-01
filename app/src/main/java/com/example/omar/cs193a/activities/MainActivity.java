@@ -1,28 +1,36 @@
-package com.example.omar.cs193a;
+package com.example.omar.cs193a.activities;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Switch;
 
+import com.example.omar.cs193a.R;
+import com.example.omar.cs193a.adapters.MyRecyclerAdapter;
 import com.example.omar.cs193a.database.ClipsDB;
+import com.example.omar.cs193a.model.Clip;
+import com.example.omar.cs193a.services.ClipsMonitorService;
 
 import java.util.ArrayList;
 
@@ -35,9 +43,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
     private Intent ClipsMonitorServiceIntent;
     private CoordinatorLayout mCoordinator;
     private ClipboardManager mClipboardManager;
-    private SharedPreferences mSharedPreferences;
-    private Switch mSwitch;
-    boolean enabled;
+    private ShareActionProvider mShareActionProvider = new ShareActionProvider(this);
 
     private ArrayList<Clip> clips = new ArrayList<>();
 
@@ -56,8 +62,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
         public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
             menu.clear();
             mode.setTitle(String.valueOf(selectedItems.size()) + " Selected");
-            if (selectedItems.size() <= 1) {
+            if (selectedItems.size() == 1) {
                 getMenuInflater().inflate(R.menu.menu_recycler_actions_single, menu);
+                MenuItemCompat.setActionProvider(menu.findItem(R.id.action_share), mShareActionProvider);
+                mShareActionProvider.setShareIntent(new Intent(Intent.ACTION_VIEW, Uri.parse(clips.get(selectedItems.get(0)).getContent())));
+
             } else {
                 getMenuInflater().inflate(R.menu.menu_recycler_actions_multible, menu);
 
@@ -85,6 +94,14 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
             }
             mode.finish();
             return true;
+        }
+
+        @NonNull
+        private Intent createShareIntent() {
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/*");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, clips.get(selectedItems.get(0)).getContent());
+            return shareIntent;
         }
 
         @Override
@@ -125,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
         myRecyclerAdapter.setListener(this);
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        /*mRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));*/
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
         mRecyclerView.setAdapter(myRecyclerAdapter);
 
     }
@@ -161,6 +178,12 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        updateRecycler();
+    }
+
+    @Override
     public void onRefresh() {
         // TODO Update Recycler
         updateRecycler();
@@ -171,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         new MenuInflater(this).inflate(R.menu.menu_main, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -184,8 +207,21 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
             case R.id.action_settings:
                 startActivity(new Intent(mContext, SettingsActivity.class));
                 break;
+            case R.id.action_change_recycler_layout:
+                if (item.getTitle().equals(getString(R.string.list_layout))) {
+                    mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+                    mRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
+                    item.setTitle(getString(R.string.grid_layout));
+                    item.setIcon(R.drawable.ic_grid);
+                } else {
+                    mRecyclerView.setLayoutManager(new GridLayoutManager(mContext, 2));
+                    mRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.HORIZONTAL));
+                    item.setTitle(getString(R.string.list_layout));
+                    item.setIcon(R.drawable.ic_list);
+                }
+                break;
         }
-        return true;
+        return super.onOptionsItemSelected(item);
     }
 
     public void showSnack(String text) {

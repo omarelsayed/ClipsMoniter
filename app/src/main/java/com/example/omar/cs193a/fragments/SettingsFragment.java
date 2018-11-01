@@ -1,4 +1,4 @@
-package com.example.omar.cs193a;
+package com.example.omar.cs193a.fragments;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -6,6 +6,9 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
+
+import com.example.omar.cs193a.R;
+import com.example.omar.cs193a.receivers.BootReceiver;
 
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 

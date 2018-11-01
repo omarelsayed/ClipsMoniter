@@ -1,4 +1,4 @@
-package com.example.omar.cs193a;
+package com.example.omar.cs193a.services;
 
 import android.app.IntentService;
 import android.app.NotificationChannel;
@@ -10,7 +10,10 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
+import com.example.omar.cs193a.R;
+import com.example.omar.cs193a.activities.MainActivity;
 import com.example.omar.cs193a.database.ClipsDB;
+import com.example.omar.cs193a.model.Clip;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

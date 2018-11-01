@@ -1,4 +1,4 @@
-package com.example.omar.cs193a;
+package com.example.omar.cs193a.model;
 
 public class Clip {
     private String content;

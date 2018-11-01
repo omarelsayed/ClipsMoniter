@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".MainActivity">
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,18 +24,18 @@
         </activity>
 
         <service
-            android:name=".ClipsMonitorService"
+            android:name=".services.ClipsMonitorService"
             android:exported="false" />
 
         <receiver
-            android:name=".BootReceiver"
+            android:name=".receivers.BootReceiver"
             android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-        <activity android:name=".SettingsActivity" android:parentActivityName=".MainActivity"/>
+        <activity android:name=".activities.SettingsActivity" android:parentActivityName=".activities.MainActivity"/>
     </application>
 
 </manifest>

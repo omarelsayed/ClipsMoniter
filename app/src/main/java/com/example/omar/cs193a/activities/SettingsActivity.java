@@ -1,8 +1,11 @@
-package com.example.omar.cs193a;
+package com.example.omar.cs193a.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+
+import com.example.omar.cs193a.R;
+import com.example.omar.cs193a.fragments.SettingsFragment;
 
 public class SettingsActivity extends AppCompatActivity {
 
