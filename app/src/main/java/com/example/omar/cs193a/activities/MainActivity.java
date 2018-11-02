@@ -10,16 +10,15 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
-import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -71,8 +70,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
                 mode.setTitle(String.valueOf(selectedItems.size()) + " Selected");
                 if (selectedItems.size() == 1) {
                     getMenuInflater().inflate(R.menu.menu_recycler_actions_single, menu);
-                    MenuItemCompat.setActionProvider(menu.findItem(R.id.action_share), mShareActionProvider);
-                    mShareActionProvider.setShareIntent(createShareIntent());
 
                 } else {
                     getMenuInflater().inflate(R.menu.menu_recycler_actions_multible, menu);
@@ -97,6 +94,9 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
                             mClipsDB.removeClip(clip);
                         }
                         showSnack(String.valueOf(selectedItems.size()) + " Clips Deleted");
+                        break;
+                    case R.id.action_share:
+                        startActivity(Intent.createChooser(createShareIntent(), "Share Clip "));
                         break;
                 }
                 mode.finish();
@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
 
     @Override
     public void onItemLongCLick(View view, int position) {
-        startActionMode(actionModeCallBacks);
+        startSupportActionMode(actionModeCallBacks);
         selectItem(view, position);
     }
 
