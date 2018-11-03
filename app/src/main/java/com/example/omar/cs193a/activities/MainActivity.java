@@ -5,6 +5,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -17,7 +18,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,6 +30,8 @@ import com.example.omar.cs193a.database.ClipsDB;
 import com.example.omar.cs193a.model.Clip;
 import com.example.omar.cs193a.services.ClipsMonitorService;
 
+import org.apache.commons.validator.routines.UrlValidator;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter.ClipsRecyclerClickListener, SwipeRefreshLayout.OnRefreshListener {
@@ -41,7 +43,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
     private Intent ClipsMonitorServiceIntent;
     private CoordinatorLayout mCoordinator;
     private ClipboardManager mClipboardManager;
-    private ShareActionProvider mShareActionProvider = new ShareActionProvider(this);
     private ArrayList<Clip> clips = new ArrayList<>();
     private boolean multiSelect;
     private ArrayList<Integer> selectedItems = new ArrayList<>();
@@ -68,7 +69,9 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
             public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
                 menu.clear();
                 mode.setTitle(String.valueOf(selectedItems.size()) + " Selected");
-                if (selectedItems.size() == 1) {
+                if (selectedItems.isEmpty()) {
+                    menu.clear();
+                } else if (selectedItems.size() == 1) {
                     getMenuInflater().inflate(R.menu.menu_recycler_actions_single, menu);
 
                 } else {
@@ -96,19 +99,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
                         showSnack(String.valueOf(selectedItems.size()) + " Clips Deleted");
                         break;
                     case R.id.action_share:
-                        startActivity(Intent.createChooser(createShareIntent(), "Share Clip "));
+                        shareClip();
                         break;
                 }
                 mode.finish();
                 return true;
-            }
-
-            @NonNull
-            private Intent createShareIntent() {
-                Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                shareIntent.setType("text/*");
-                shareIntent.putExtra(Intent.EXTRA_TEXT, clips.get(selectedItems.get(0)).getContent());
-                return shareIntent;
             }
 
             @Override
@@ -116,6 +111,25 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
                 multiSelect = false;
                 selectedItems.clear();
                 updateRecycler();
+            }
+
+            private void shareClip() {
+                startActivity(Intent.createChooser(createShareIntent(), "Share Clip "));
+            }
+
+            @NonNull
+            private Intent createShareIntent() {
+                UrlValidator urlValidator = new UrlValidator();
+                Intent shareIntent = null;
+                String data = clips.get(selectedItems.get(0)).getContent();
+                if (urlValidator.isValid(data)) {
+                    shareIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(data));
+                } else {
+                    shareIntent = new Intent(Intent.ACTION_SEND);
+                    shareIntent.setType("text/*");
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, clips.get(selectedItems.get(0)).getContent());
+                }
+                return shareIntent;
             }
         };
 
@@ -174,6 +188,10 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
         clips.clear();
         clips.addAll(mClipsDB.getClips());
         myRecyclerAdapter.notifyDataSetChanged();
+        if (!selectedItems.isEmpty()) {
+            actionMode.finish();
+        }
+
     }
 
     @Override

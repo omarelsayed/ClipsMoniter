@@ -1,10 +1,17 @@
 package com.example.omar.cs193a.model;
 
 public class Clip {
+    private int id;
     private String content;
     private String date;
 
     public Clip(String content, String date) {
+        this.content = content;
+        this.date = date;
+    }
+
+    public Clip(int id, String content, String date) {
+        this.id = id;
         this.content = content;
         this.date = date;
     }
