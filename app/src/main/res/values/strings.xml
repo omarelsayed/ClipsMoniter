@@ -10,4 +10,6 @@
     <string name="title_change_layout">Change Layout</string>
     <string name="list_layout">Linear Layout</string>
     <string name="grid_layout">Grid Layout</string>
+    <string name="hint_search_clips">Search Clips</string>
+    <string name="title_search">Search</string>
 </resources>

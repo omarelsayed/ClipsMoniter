@@ -3,10 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_search"
+        android:icon="@android:drawable/ic_menu_search"
+        android:orderInCategory="0"
+        android:title="@string/title_search"
+        app:showAsAction="collapseActionView|ifRoom"/>
+
+    <item
         android:id="@+id/action_change_recycler_layout"
         android:icon="@drawable/ic_grid"
         android:title="@string/grid_layout"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_settings"
         android:icon="@drawable/ic_settings"

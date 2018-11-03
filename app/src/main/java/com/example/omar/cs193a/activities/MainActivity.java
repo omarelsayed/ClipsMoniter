@@ -1,7 +1,9 @@
 package com.example.omar.cs193a.activities;
 
+import android.app.SearchManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -18,6 +20,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -48,6 +51,10 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
     private ArrayList<Integer> selectedItems = new ArrayList<>();
     private ActionMode actionMode;
     private ActionMode.Callback actionModeCallBacks;
+
+    // TODO -> SearchView
+    private SearchView mSearchView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -211,6 +218,13 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         new MenuInflater(this).inflate(R.menu.menu_main, menu);
+
+        // TODO -> SearchView
+        mSearchView = new SearchView(mContext);
+        menu.findItem(R.id.action_search).setActionView(mSearchView);
+        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+        mSearchView.setSearchableInfo(searchManager.getSearchableInfo(new ComponentName(mContext, SearchActivity.class)));
+
         return super.onCreateOptionsMenu(menu);
     }
 
