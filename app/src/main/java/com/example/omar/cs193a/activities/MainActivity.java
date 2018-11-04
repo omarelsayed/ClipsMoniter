@@ -49,12 +49,86 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
     private ArrayList<Clip> clips = new ArrayList<>();
     private boolean multiSelect;
     private ArrayList<Integer> selectedItems = new ArrayList<>();
-    private ActionMode actionMode;
-    private ActionMode.Callback actionModeCallBacks;
+    private ActionMode mActionMode;
+    private ActionMode.Callback actionModeCallBacks = new ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            multiSelect = true;
+            mActionMode = mode;
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            menu.clear();
+            mode.setTitle(String.valueOf(selectedItems.size()) + " Selected");
+            if (selectedItems.isEmpty()) {
+                menu.clear();
+            } else if (selectedItems.size() == 1) {
+                getMenuInflater().inflate(R.menu.menu_recycler_actions_single, menu);
+
+            } else {
+                getMenuInflater().inflate(R.menu.menu_recycler_actions_multible, menu);
+
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_copy:
+                    if (selectedItems.size() > 0) {
+                        Clip clip = clips.get(selectedItems.get(0));
+                        mClipboardManager.setPrimaryClip(new ClipData("", new String[]{"text/plain"}, new ClipData.Item(clip.getContent())));
+                    }
+                    showSnack("Copied");
+                    break;
+                case R.id.action_delete:
+                    for (Integer integer : selectedItems) {
+                        Clip clip = clips.get(integer);
+                        mClipsDB.removeClip(clip);
+                    }
+                    showSnack(String.valueOf(selectedItems.size()) + " Clips Deleted");
+                    break;
+                case R.id.action_share:
+                    shareClip();
+                    break;
+            }
+            mode.finish();
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            multiSelect = false;
+            mActionMode = null;
+            selectedItems.clear();
+            updateRecycler();
+        }
+
+        private void shareClip() {
+            startActivity(Intent.createChooser(createShareIntent(), "Share Clip "));
+        }
+
+        @NonNull
+        private Intent createShareIntent() {
+            UrlValidator urlValidator = new UrlValidator();
+            Intent shareIntent = null;
+            String data = clips.get(selectedItems.get(0)).getContent();
+            if (urlValidator.isValid(data)) {
+                shareIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(data));
+            } else {
+                shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/*");
+                shareIntent.putExtra(Intent.EXTRA_TEXT, clips.get(selectedItems.get(0)).getContent());
+            }
+            return shareIntent;
+        }
+    };
 
     // TODO -> SearchView
     private SearchView mSearchView;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,83 +137,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
         PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
         setSupportActionBar((Toolbar) findViewById(R.id.main_toolbar));
         mContext = this;
-
-        actionModeCallBacks = new ActionMode.Callback() {
-            @Override
-            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                multiSelect = true;
-                actionMode = mode;
-                return true;
-            }
-
-            @Override
-            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                menu.clear();
-                mode.setTitle(String.valueOf(selectedItems.size()) + " Selected");
-                if (selectedItems.isEmpty()) {
-                    menu.clear();
-                } else if (selectedItems.size() == 1) {
-                    getMenuInflater().inflate(R.menu.menu_recycler_actions_single, menu);
-
-                } else {
-                    getMenuInflater().inflate(R.menu.menu_recycler_actions_multible, menu);
-
-                }
-                return true;
-            }
-
-            @Override
-            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.action_copy:
-                        if (selectedItems.size() > 0) {
-                            Clip clip = clips.get(selectedItems.get(0));
-                            mClipboardManager.setPrimaryClip(new ClipData("", new String[]{"text/plain"}, new ClipData.Item(clip.getContent())));
-                        }
-                        showSnack("Copied");
-                        break;
-                    case R.id.action_delete:
-                        for (Integer integer : selectedItems) {
-                            Clip clip = clips.get(integer);
-                            mClipsDB.removeClip(clip);
-                        }
-                        showSnack(String.valueOf(selectedItems.size()) + " Clips Deleted");
-                        break;
-                    case R.id.action_share:
-                        shareClip();
-                        break;
-                }
-                mode.finish();
-                return true;
-            }
-
-            @Override
-            public void onDestroyActionMode(ActionMode mode) {
-                multiSelect = false;
-                selectedItems.clear();
-                updateRecycler();
-            }
-
-            private void shareClip() {
-                startActivity(Intent.createChooser(createShareIntent(), "Share Clip "));
-            }
-
-            @NonNull
-            private Intent createShareIntent() {
-                UrlValidator urlValidator = new UrlValidator();
-                Intent shareIntent = null;
-                String data = clips.get(selectedItems.get(0)).getContent();
-                if (urlValidator.isValid(data)) {
-                    shareIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(data));
-                } else {
-                    shareIntent = new Intent(Intent.ACTION_SEND);
-                    shareIntent.setType("text/*");
-                    shareIntent.putExtra(Intent.EXTRA_TEXT, clips.get(selectedItems.get(0)).getContent());
-                }
-                return shareIntent;
-            }
-        };
-
 
         ClipsMonitorServiceIntent = new Intent(this, ClipsMonitorService.class);
         startService(ClipsMonitorServiceIntent);
@@ -187,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
                 selectedItems.add(position);
                 view.setBackgroundColor(Color.LTGRAY);
             }
-            actionMode.invalidate();
+            mActionMode.invalidate();
         }
     }
 
@@ -196,16 +193,16 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerAdapter
         clips.addAll(mClipsDB.getClips());
         myRecyclerAdapter.notifyDataSetChanged();
         if (!selectedItems.isEmpty()) {
-            actionMode.finish();
+            mActionMode.finish();
         }
 
     }
 
-    @Override
+    /*@Override
     protected void onResume() {
         super.onResume();
         updateRecycler();
-    }
+    }*/
 
     @Override
     public void onRefresh() {
